@@ -1,16 +1,16 @@
 clear; clc; close all
-%Ä¿±êº¯ÊıSolving (D, X) = \arg\min_{D,X} ||Y - DX||_F^2 + lambda||X||_1+alphaTr(DUD')+betaTr(X'UX)+Tr(XZX')
- m=0;%Ã¿ÀàÑù±¾¸öÊı
- c=40;%Ñù±¾µÄÀàÊı
- train_num=5;%Ã¿ÀàÑµÁ·Ñù±¾µÄ¸öÊı
-addpath(genpath('.\ksvdbox'));  %Ìí¼ÓK-SVD boxÂ·¾¶
-addpath(genpath('.\OMPbox')); % add sparse coding algorithem OMP£¨Õı½»Æ¥Åä×·×ÙËã·¨£©
-sparsitythres = 30; % sparsity prior£¨Ï¡ÊèãĞÖµT0=30£©
-iterations4ini=1; % µü´úÊı
+%Solving (D, X) = \arg\min_{D,X} ||Y - DX||_F^2 + lambda||X||_1+alphaTr(DUD')+betaTr(X'UX)+Tr(XZX')
+ m=0;
+ c=40;%
+ train_num=5;%
+addpath(genpath('.\ksvdbox'));  
+addpath(genpath('.\OMPbox')); % add sparse coding algorithem OMPï¼ˆ
+sparsitythres = 30; 
+iterations4ini=1; 
 addpath('ODL');%Solving (D, X) = \arg\min_{D,X} 0.5||Y - DX||_F^2 + lambda||X||_1
-addpath('LRSDL_FDDL');%LRSDL¹²ÏíÌØ¶¨ÀàDDLËã·¨£»FDDLÌØ¶¨ÀàDDLËã·¨
+addpath('LRSDL_FDDL');
 addpath('utils');
-max_iter=30;%×î´óµü´úÊı30
+max_iter=30;
 
 miu=127;
 sigma=40;
@@ -19,40 +19,37 @@ for jj=1%:10%
 sumd=0; 
 sumd1=0; 
      for p=1:20
-     %»ñÈ¡ÑµÁ·Êı¾İºÍ²âÊÔÊı¾İ
+
      [train_data,train_data_v,train_label,test_data,test_data_v,test_label]=read_datav_ORL(train_num,m,c,miu,sigma);
-     % %±êÇ©¾ØÕó
+
      clear H_train H_test
-     H_train =lcksvd_buildH(train_label);%ÑµÁ·Ñù±¾µÄ±êÇ©¾ØÕó
+     H_train =lcksvd_buildH(train_label);
      
-     H_test= lcksvd_buildH(test_label);%²âÊÔÑù±¾µÄ±êÇ©¾ØÕó
-     
-        for dictsize=200% ×ÖµäÊı=ÑµÁ·Êı
+     H_test= lcksvd_buildH(test_label);
+        for dictsize=200%
         sumd=sumd+1;
-        % clear Dinit%×Öµä³õÊ¼»¯%
-        [Dinit,Tinit,Cinit,Q_train,Xinit,D_label] = initialization4LCKSVD(train_data,H_train,dictsize,iterations4ini,sparsitythres);
-        
-        [Dvinit,Tvinit,Cvinit,Qv_train,Xvinit,Dv_label] = initialization4LCKSVD(train_data_v,H_train,dictsize,iterations4ini,sparsitythres);
-        %ÓÃËùÓĞÑµÁ·Ñù±¾³õÊ¼»¯×Öµä
-        PA=[1e-5,1e-4,1e-3,1e-2,1e-1,1,0,10,100,1e+3,1e+4,1e+5];%²ÎÊıalpha,beta,gam
-            for alpha1=1%1:6 %
-                for beta1=1%1:6%
-                    for gam1=4%1:6%4
-                        for gams1=6%1:6%
+        % clear Dinit
+
+     
+        PA=[1e-5,1e-4,1e-3,1e-2,1e-1,1,0,10,100,1e+3,1e+4,1e+5];
+            for alpha1=1
+                for beta1=1
+                    for gam1=4
+                        for gams1=6
                         alpha=PA(alpha1);
                         beta=PA(beta1);
                         gam=PA(gam1);
                         gams=PA(gams1);
                         
-                        Y_range = label_to_range(train_label);%·Ö³É10×é£¬Ã¿×éÓĞ  ¸ö
+                        Y_range = label_to_range(train_label);
                         D_range = (dictsize/c)*(0:c);
                         [Q]=construct_Q(D_label);
                         [Qv]=construct_Q(Dv_label);
                         U=(eye(dictsize)+(1/dictsize)*ones(dictsize,dictsize)-2*Q);
                         Uv=(eye(dictsize)+(1/dictsize)*ones(dictsize,dictsize)-2*Qv);
                         
-                        % % Ñ§Ï°×Öµä
-                        [D,X,obj] = Learn_D_X(train_data,Dinit,Xinit,alpha,beta,gam,gams,max_iter,U,Y_range); %ÓÃÑµÁ·Ñù±¾Ñ§Ï°µÃµ½×ÖµäºÍ±àÂëÏµÊıµÄº¯Êı
+                        % % 
+                        [D,X,obj] = Learn_D_X(train_data,Dinit,Xinit,alpha,beta,gam,gams,max_iter,U,Y_range);
                         [Dv,Xv,objv] = Learn_D_X(train_data_v,Dvinit,Xvinit,alpha,beta,gam,gams,max_iter,Uv,Y_range);
                         % % Mean vectors
                         CoefM = zeros(size(X, 1), c);
@@ -61,7 +58,7 @@ sumd1=0;
                             CoefM(:, i) = mean(Xc,2);
                             end
                         
-                        % clasification  ·ÖÀà
+                        % clasification  
                         fprintf('GC:\n');
                         opts.verbose = 0;
                         opts.weight = 0.5;
@@ -71,7 +68,7 @@ sumd1=0;
                         acc3 = [];
                         acc4 = [];
                         
-                            for vgamma = [0.0001, 0.001, 0.01, 0.1]%vgamma·Ö±ğµÈÓÚÕâËÄ¸öÖµµÄÊ¶±ğÂÊ·ÖÀà²ÎÊı
+                            for vgamma = [0.0001, 0.001, 0.01, 0.1]
                             opts.gamma = vgamma;
                             [pred1,pred2,pred3,pred4] = FDDL_pred_v(test_data,test_data_v, D,Dv, CoefM, opts);%predict
                             acc1 = [acc1 calc_acc(pred1, test_label')];
@@ -81,11 +78,11 @@ sumd1=0;
                             %fprintf('vgamma = %.4f, acc = %.4f\n', vgamma, acc(end));
                             end
                             
-                        acc1(p)= max(acc1);%¼ÇÂ¼10´ÎµÄ×¼È·ÂÊ
+                        acc1(p)= max(acc1);
                         acc2(p)= max(acc2);
                         acc3(p)= max(acc3);
                         acc4(p)= max(acc4);
-                        b=fopen('ceshi.txt','a+'); %´æ·ÅÃ¿´Î²âÊÔµÄÊ¶±ğÂÊ
+                        b=fopen('ceshi.txt','a+'); 
                         fprintf(b,'%d,%d,%d,%d,%d,%.03f\r\n',dictsize,alpha1,beta1,gam1,gams1,acc1);
                         fclose(b);
                             
@@ -102,7 +99,7 @@ sumd1=0;
      end
 end
 
-ave_acc1=mean(rec1);%Æ½¾ùÊ¶±ğÂÊ
+ave_acc1=mean(rec1);
 ave_acc2=mean(rec2);
 ave_acc3=mean(rec3);
 ave_acc4=mean(rec4);
