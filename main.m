@@ -17,15 +17,13 @@ sigma=40;
 
 for jj=1%:10%
 sumd=0; 
-sumd1=0; 
+sumd1=0;     
+     H_test= lcksvd_buildH(test_label); 
      for p=1:20
 
-     [train_data,train_data_v,train_label,test_data,test_data_v,test_label]=read_datav_ORL(train_num,m,c,miu,sigma);
 
      clear H_train H_test
-     H_train =lcksvd_buildH(train_label);
-     
-     H_test= lcksvd_buildH(test_label);
+
         for dictsize=200%
         sumd=sumd+1;
         % clear Dinit
